@@ -2,27 +2,27 @@
 
 Projet 6 de la formation **Intégrateur Web** (OpenClassrooms).
 
-## Description
+## 🎯 Description
 
 Site portfolio de l'architecte Sophie Bluel, développé dans le cadre
 d'une mission en agence. Le projet consiste à rendre dynamique une page
 web statique en JavaScript vanilla, en consommant une API REST.
 
-## Fonctionnalités
+## ✨ Fonctionnalités
 
 - Galerie dynamique des travaux via API
 - Filtrage des travaux par catégorie
 - Page de connexion administrateur
 - Modale de gestion des projets (ajout / suppression)
 
-## Stack technique
+## 🛠️ Stack technique
 
 - HTML / CSS / JavaScript vanilla
 - Node.js / Express.js (back-end fourni)
 - SQLite (base de données)
 - API REST documentée via Swagger
 
-## Installation
+## ⚙️ Installation
 
 ### Back-end
 
@@ -38,6 +38,11 @@ Le serveur tourne sur `http://localhost:5678`
 
 Ouvrir `FrontEnd/index.html` avec Live Server.
 
-## Auteur
+## 🔗 Liens
 
-Thierry — Formation Intégrateur Web, OpenClassrooms
+- **Repo GitHub** : https://github.com/Thierry-webdeveloper/Site-Portofolio.git
+- **Site en ligne** : https://thierry-webdeveloper.github.io/Site-Portofolio/FrontEnd/index.html
+
+---
+
+_Thierry-webdeveloper — Formation OpenClassrooms — Intégrateur Web_
