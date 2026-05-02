@@ -1,3 +1,4 @@
 { 
-    "liveServer.settings.ignoreFiles": ["Backend/**"] 
+    "liveServer.settings.ignoreFiles": ["Backend/**"],
+    "liveServer.settings.root": "/FrontEnd"
 }
