@@ -41,7 +41,7 @@ Ouvrir `FrontEnd/index.html` avec Live Server.
 ## 🔗 Liens
 
 - **Repo GitHub** : https://github.com/Thierry-webdeveloper/Site-Portofolio.git
-- **Site en ligne** : https://thierry-webdeveloper.github.io/Site-Portofolio/
+- **Site statique en ligne** : https://thierry-webdeveloper.github.io/Site-Portofolio/
 
 ## 🌿 Branches
 
