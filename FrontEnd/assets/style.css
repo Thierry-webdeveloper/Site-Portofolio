@@ -125,6 +125,38 @@ li:hover {
 	text-align: center;
 	margin-bottom: 1em;
 }
+/* Filtres de la galerie */
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 50px 0;
+}
+
+.filter-btn {
+  font-family: 'Syne';
+  font-weight: 700;
+  font-size: 16px;
+  text-align: center;
+  color: #1D6154;
+  background-color: transparent;
+  border: 1px solid #1D6154;
+  border-radius: 60px;
+  height: 37px;
+  padding: 0 1.5em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-btn:hover {
+  background-color: #1D6154;
+  color: #FFFFFF;
+}
+
+.filter-btn.active {
+  background-color: #1D6154;
+  color: #FFFFFF;
+}
 .gallery {
 	width: 100%;
 	display: grid;
