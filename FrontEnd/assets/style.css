@@ -299,3 +299,12 @@ body.login-page main {
   color: #3D3D3D;
   text-align: center;
 }
+
+#login-error {
+  color: #e74c3c;
+  font-family: 'Work Sans';
+  font-size: 14px;
+  text-align: center;
+  margin-top: 20px;
+  min-height: 1.2em; /* évite un "saut" de layout à l'apparition */
+}
