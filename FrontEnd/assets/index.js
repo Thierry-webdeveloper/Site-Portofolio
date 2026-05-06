@@ -1,6 +1,7 @@
 // Variables globales
 const filters = document.querySelector(".filters");
 const gallery = document.querySelector(".gallery");
+const token = localStorage.getItem("token");
 
 // Fonctions
 function createBtn(category, title) {
@@ -67,11 +68,30 @@ function selectFilter() {
   }
 }
 
+function enableEditMode() {
+  if (token) {
+    document.querySelector("#edit-banner").classList.remove("is-hidden");
+    document.querySelector("#nav-login").classList.add("is-hidden");
+    document.querySelector("#nav-logout").classList.remove("is-hidden");
+    document.querySelector(".filters").classList.add("is-hidden");
+    document.querySelector("#edit-btn-container").classList.remove("is-hidden");
+    document.querySelector("#portfolio-header").style.marginBottom = "90px";
+  }
+}
+
 // Main
 
 // __ Initialisation : async function init() inutile ici  les deux fonctions de chargement sont indépendantes l'une de l'autre
+enableEditMode();
 loadFilters();
 loadWorks();
 
 // __ Event listeners
 filters.addEventListener("click", selectFilter); // ici selectFilter reçoit 'event' en premier paramètre
+
+document.querySelector("#logout-link").addEventListener("click", (event) => {
+  event.preventDefault();
+  localStorage.removeItem("token");
+  // window.location.href = "login.html";
+  location.reload();
+});
