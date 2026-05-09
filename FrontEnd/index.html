@@ -31,7 +31,7 @@
       <nav>
         <ul>
           <li>projets</li>
-          <li>contact</li>
+          <li><a href="#contact">contact</a></li>
           <li id="nav-login"><a href="login.html">Login</a></li>
           <li id="nav-logout" class="is-hidden">
             <a href="#" id="logout-link">logout</a>
@@ -73,15 +73,8 @@
             </button>
           </div>
         </div>
+        <div class="filters"></div>
         <!-- ici les filtres -->
-        <div class="filters">
-          <!-- <button class="filter-btn active" data-category="all">Tous</button>
-          <button class="filter-btn" data-category="1">Objets</button>
-          <button class="filter-btn" data-category="2">Appartements</button>
-          <button class="filter-btn" data-category="3">
-            Hotels & restaurants
-          </button> -->
-        </div>
         <div class="gallery"></div>
         <!-- balises <figure> et enfants générés dynamiquement -->
       </section>
@@ -107,6 +100,70 @@
         </ul>
       </nav>
     </footer>
+
+    <!-- === MODALE === -->
+    <!-- style="display: none" -->
+    <aside
+      id="modal-overlay"
+      class="modal"
+      style="display: none"
+      role="dialog"
+      aria-hidden="true"
+      aria-labelledby="modal-title"
+    >
+      <div class="modal-wrapper js-modal-stop">
+        <!-- Bouton fermeture -->
+        <button
+          class="modal-close js-modal-close"
+          aria-label="Fermer la modale"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <!-- VUE 1 : Galerie de la modale -->
+        <div id="modal-gallery">
+          <h2 id="modal-title">Galerie photo</h2>
+          <div class="modal-works-gallery">
+            <!-- figures générées dynamiquement à l'étape 7 -->
+          </div>
+          <hr />
+          <button id="modal-add-btn">Ajouter une photo</button>
+        </div>
+
+        <!-- VUE 2 : Formulaire d'ajout -->
+        <div id="modal-form" style="display: none">
+          <!-- style="display: none" -->
+          <button id="modal-back" aria-label="Retour à la galerie">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <h2>Ajout photo</h2>
+          <form>
+            <div id="upload-zone">
+              <i class="fa-regular fa-image"></i>
+              <label for="photo-input">+ Ajouter photo</label>
+              <input
+                type="file"
+                id="photo-input"
+                name="image"
+                accept="image/*"
+              />
+              <p>jpg, png : 4mo max</p>
+            </div>
+            <label for="photo-title">Titre</label>
+            <input type="text" id="photo-title" name="title" />
+            <label for="photo-category">Catégorie</label>
+            <select id="photo-category" name="category">
+              <option value=""></option>
+              <!-- options générées dynamiquement à l'étape 8 -->
+            </select>
+            <hr />
+            <button type="submit" id="form-submit">Valider</button>
+          </form>
+        </div>
+      </div>
+    </aside>
+    <!-- === FIN MODALE === -->
+
     <script src="./assets/index.js"></script>
   </body>
 </html>

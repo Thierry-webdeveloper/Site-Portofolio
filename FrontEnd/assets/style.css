@@ -176,35 +176,45 @@ nav li a:hover {
 
 .gallery img {
 	width: 100%;
-
 }
 
-#contact {
+#contact,		/* Sélecteur de regroupement */
+#login {
 	width: 50%;
 	margin: auto;
 }
-#contact > * {
+
+#contact > *,
+#login > * {
 	text-align: center;
 }
-#contact h2{
+
+#contact h2,
+#login h2 {
 	margin-bottom: 20px;
 }
-#contact form {
+
+#contact form,
+#login form {
 	text-align: left;
 	margin-top:30px;
 	display: flex;
 	flex-direction: column;
 }
 
-#contact input {
+#contact input,
+#login input {
 	height: 50px;
 	font-size: 1.2em;
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
-#contact label {
+
+#contact label,
+#login label {
 	margin: 2em 0 1em 0;
 }
+
 #contact textarea {
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
@@ -230,7 +240,7 @@ footer nav ul {
 
 /* === LOGIN PAGE === */
 
-body.login-page {
+body.login-page {		/* Cible spécifiquement le body de la page login.html */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -240,36 +250,7 @@ body.login-page main {
   flex: 1;
 }
 
-#login {
-  width: 50%;
-  margin: auto;
-}
-
-#login > * {
-	text-align: center;
-}
-
-#login h2 {
-  margin-bottom: 20px;
-}
-
-#login form {
-  text-align: left;
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-}
-
-#login input {
-  height: 50px;
-  font-size: 1.2em;
-  border: none;
-  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
-}
-
-#login label {
-  margin: 2em 0 1em 0;
-}
+/* __ Autres styles sur #login, voir sélecteurs de regroupement sur #contact */
 
 #login button[type="submit"] {
 	font-family: 'Syne';
@@ -278,12 +259,12 @@ body.login-page main {
 	height: 36px;
 	color: white;
 	background-color: #1D6154;
-	margin : 2em auto;	/*37px auto 27px ;*/
+	margin : 2em auto;	/* Figma : 37px auto 27px ;*/
 	width: 180px;
 	text-align: center;
 	border-radius: 60px;
-	border: none;
-	cursor: pointer;	/* user-agent stylesheet applique default sur button */
+	border: none;		/* user-agent stylesheet applique default sur button */
+	cursor: pointer;
 }
 
 #login a {
@@ -332,12 +313,16 @@ body.login-page main {
 	text-align: center;
 }
 
+#portfolio-header.edit-mode {
+  margin-bottom: 90px;		/* Figma : passe margin-bottom de 50 à 90px en mode édition */
+}
+
 #edit-btn-container {
   display: flex;
   align-items: center;
 }
 
-#edit-btn-container.is-hidden {
+#edit-btn-container.is-hidden {		/* Conflit de spécificité résolu */
   display: none;
 }
 
@@ -350,4 +335,214 @@ body.login-page main {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* === MODALE === */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal-wrapper {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 60px 50px 40px;
+  width: 630px;
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 20px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.modal h2 {
+  font-family: 'Work Sans';
+  font-weight: 400;
+  font-size: 26px;
+  color: #000;
+  text-align: center;
+  height: 30px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #3D3D3D;
+}
+
+.modal-close:hover {
+  color: #B1663C;
+}
+
+/* __ Vue 1 : galerie de la modale */
+
+#modal-gallery {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.modal-works-gallery {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.modal-works-gallery figure {
+  position: relative;
+}
+
+.modal-works-gallery img {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+}
+
+.modal hr {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #B3B3B3;
+  margin-top: 67px;
+}
+
+#modal-add-btn {
+  font-family: 'Syne';
+  font-weight: 700;
+  font-size: 14px;
+  color: #ffffff;
+  background-color: #1D6154;
+  border: none;
+  border-radius: 60px;
+  height: 36px;
+  width: 237px;
+  margin-top: 18px;
+  padding: 0 40px;
+  cursor: pointer;
+}
+
+/* __ Vue 2 : formulaire d'ajout */
+
+#modal-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+#modal-back {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  color: #3D3D3D;
+}
+
+#modal-back:hover {
+  color: #B1663C;
+}
+
+#modal-form form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: #E8F1F6;
+  border-radius: 3px;
+  height: 169px;
+  width: 100%;
+  font-family: 'Work Sans';
+  font-size: 14px;
+  color: #3D3D3D;
+  padding: 20px 0;
+}
+
+#upload-zone i {
+  font-size: 68px;
+  color: #B9C5CC;
+}
+
+#upload-zone label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 173px;
+  height: 36px;
+  font-family: 'Work Sans';
+  font-weight: 500;
+  color: #306685;
+  background-color: #CBD6DC;
+  border-radius: 50px;
+  padding: 8px 20px;
+  cursor: pointer;
+}
+
+#upload-zone input[type="file"] {
+  display: none;
+}
+
+#upload-zone p {
+	font-size: 10px;
+}
+
+#modal-form label {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+#modal-form input[type="text"],
+#modal-form select {
+  height: 50px;
+  border: none;
+  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+  font-family: 'Work Sans';
+  font-size: 14px;
+  color: #444444;
+  padding: 0 16px;
+}
+
+#form-submit {
+  font-family: 'Syne';
+  font-weight: 700;
+  font-size: 14px;
+  color: #ffffff;
+  background-color: #A7A7A7;   /* gris → vert (#1D6154) à l'étape 8 */
+  border: none;
+  border-radius: 60px;
+  height: 36px;
+  width: 237px;
+  padding: 0 40px;
+  cursor: pointer;
+  align-self: center;
+  margin-top: 20px;
 }

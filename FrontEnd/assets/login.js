@@ -1,4 +1,4 @@
-// Récupération du formulaire
+// Variables globales
 const loginForm = document.querySelector("#login form");
 const errorMsg = document.querySelector("#login-error");
 
@@ -6,19 +6,19 @@ const errorMsg = document.querySelector("#login-error");
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault(); // bloque le comportement natif par défaut du navigateur : rechargement de la page
 
-  // Lecture des valeurs saisies
+  // __ Lecture des valeurs saisies
   const email = document.querySelector("#email").value;
   const password = document.querySelector("#password").value;
 
   errorMsg.textContent = "";
 
-  // Vérification si le champs email est vide
-  if (email === "") {
+  // __ Vérification si le champs email est vide
+  if (email == "") {
     errorMsg.textContent = "Veuillez saisir votre E-mail !";
     return;
   }
 
-  // Appel API : POST /users/login
+  // __ Appel API : POST /users/login (action/format/charge)
   const response = await fetch("http://localhost:5678/api/users/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
