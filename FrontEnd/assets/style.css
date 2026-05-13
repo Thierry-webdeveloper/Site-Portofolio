@@ -562,13 +562,18 @@ body.login-page main {
   font-weight: 700;
   font-size: 14px;
   color: #ffffff;
-  background-color: #A7A7A7;   /* gris → vert (#1D6154) à l'étape 8 */
+  background-color: #A7A7A7;
   border: none;
   border-radius: 60px;
   height: 36px;
   width: 237px;
   padding: 0 40px;
-  cursor: pointer;
+  /* cursor: pointer; */
   align-self: center;
   margin-top: 20px;
+}
+
+#form-submit.data-valid {
+  background-color: #1D6154;
+  cursor: pointer;
 }

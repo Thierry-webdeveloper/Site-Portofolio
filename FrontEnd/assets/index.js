@@ -1,43 +1,59 @@
-// Variables globales
+// Variables globales *************************************************************************
 const filters = document.querySelector(".filters");
 const gallery = document.querySelector(".gallery");
 const btnLogout = document.querySelector("#logout-link");
+// __ Variables d'accès et de navigation de la Modale
 const btnEdit = document.querySelector("#edit-btn");
 const btnModalAdd = document.querySelector("#modal-add-btn");
 const btnModalBack = document.querySelector("#modal-back");
+// __ Variable modale suppression des travaux
 const modalGallery = document.querySelector(".modal-works-gallery");
+// __ Variables modale ajout d'un projet
+const modalForm = document.querySelector("#modal-form form");
+const photoInput = document.querySelector("#photo-input");
+const photoTitle = document.querySelector("#photo-title");
+const photoCategory = document.querySelector("#photo-category");
+const formSubmit = document.querySelector("#form-submit");
+const uploadZone = document.querySelector("#upload-zone");
+let categoriesLoaded = false; // évite de rejouer la fonction loadFormCategories()
+// __ Variable identifiant d'accès aux fonctionnalités administrateur
 const token = localStorage.getItem("token");
 
 let modal = null; // référence à la modale ouverte (pattern Grafikart)
 
-// Fonctions
+// Fonctions **********************************************************************************
 
 // __ Gestion de l'accès au serveur  __________________________________________________________
 
 // __ Communication avec l'API de Fatima (JSDoc)
 /*
- * Vérifie la disponibilité du serveur et retourne les données.
- * @param {string} url - L'adresse de la ressource.
- * @param {string} method - La méthode HTTP (GET, POST, PUT, DELETE, etc.).
- * @param {Object} [body=null] - Le corps de la requête (pour POST/PUT).
- * @param {Object} [headers={}] - Les entêtes personnalisés.
+ * @param {string} url - Le point de terminaison (ex: "works", "categories").
+ * @param {string} method - La méthode HTTP (GET, POST, DELETE, PUT).
+ * @param {Object|FormData|null} [body=null] - Les données à envoyer. Peut être un objet JSON ou un FormData.
+ * @param {string|null} [token=null] - Le jeton d'authentification (Bearer token).
+ * @returns {Promise<{available: boolean, data: any, status?: number, error?: string}>}
  */
-
-async function apiCall(url, method, body = null, headers = {}) {
+async function apiCall(url, method, body = null, token = null) {
   console.log(`apiCall : activé\nmethod : ${method}`);
 
   try {
-    // Configuration de la requête
+    const headers = {};
     const options = { method, headers };
 
-    // Compléter l'adresse de la ressource
+    // Ajout automatique du header Authorization si un token est fourni
+    if (token) {
+      options.headers["Authorization"] = `Bearer ${token}`;
+    }
+
     url = "http://localhost:5678/api/" + url;
 
-    // Si on a un corps de texte (pour POST/PUT), on l'ajoute
     if (body) {
-      options.body = JSON.stringify(body);
-      // Sécurité et transformation pour s'assurer que le serveur interprète le corps comme du JSON
-      if (!options.headers["Content-Type"]) {
+      if (body instanceof FormData) {
+        // En cas de FormData, l'assigner directement sans Header Content-Type
+        options.body = body;
+      } else {
+        // En cas d'objet standard, conversion JSON et Header approprié
+        options.body = JSON.stringify(body);
         options.headers["Content-Type"] = "application/json";
       }
     }
@@ -111,21 +127,31 @@ async function loadWorks() {
 
 // __ Suppression d'un enregistrement de la base de données
 async function deleteRecord(id) {
-  // const fakeToken = "azerty";
-  const { available } = await apiCall(`works/${id}`, "DELETE", null, {
-    Authorization: `Bearer ${token}`,
-  });
-  return available;
+  if (id && token) {
+    const { available } = await apiCall(`works/${id}`, "DELETE", null, token);
+    return available;
+  }
+  console.warn("Échec fonction deleteRecord : id invalide ou jeton manquant.");
+  return false;
 }
 
+// __ Ajout d'un enregistrement de la base de données
+async function addRecord(formData) {
+  if (formData instanceof FormData && token) {
+    const { available, data } = await apiCall("works", "POST", formData, token);
+    return { available, data };
+  }
+  console.warn(
+    "Échec fonction addRecord : Données invalides ou jeton manquant.",
+  );
+  return { available: false, data: null };
+}
 // __ Gestion de la page principale __________________________________________________________
 
 // __ Chargement des données du serveur
 async function loadData() {
   const success = await loadFilters();
-  if (success === true) {
-    loadWorks();
-  }
+  if (success === true) loadWorks();
 }
 
 // __ Gestion du mode d'édition de la page index
@@ -187,7 +213,43 @@ function selectFilter() {
 
 // __ Gestion de la modale ___________________________________________________________________
 
-// __ Actualisation de la galerie
+// __ Peuplement du select de catégories "photoCategory" du formulaire d'ajout (showModalForm Vue 2)
+async function loadFormCategories() {
+  if (!categoriesLoaded) {
+    const { available, data: categories } = await apiCall("categories", "GET");
+    if (!available) return;
+
+    // Vider les options existantes sauf la première (option vide)
+    photoCategory.innerHTML = '<option value=""></option>';
+
+    categories.forEach((category) => {
+      const option = document.createElement("option");
+      option.value = category.id;
+      option.textContent = category.name;
+      photoCategory.appendChild(option);
+    });
+
+    // évite de rejouer cette fonction : actuellement aucune fonctionnalité pour créer une nouvelle catégorie
+    categoriesLoaded = true;
+  }
+}
+
+// __ Navigation interne : Vue 1 (modale-galerie)
+const showModalGallery = function () {
+  document.querySelector("#modal-gallery").style.display = null;
+  document.querySelector("#modal-form").style.display = "none";
+};
+
+// __ Navigation interne : Vue 2 (modale-formulaire d'ajout)
+const showModalForm = function () {
+  document.querySelector("#modal-gallery").style.display = "none";
+  document.querySelector("#modal-form").style.display = null;
+
+  loadFormCategories(); // chargement dynamique des catégories
+  //resetForm(); // formulaire toujours vierge à l'ouverture
+};
+
+// __ Actualisation du DOM des galeries après la suppression du travail
 function refreshDOM(idWork) {
   const figureGallery = gallery.querySelector(`figure[data-work="${idWork}"]`);
   const figureModal = modalGallery.querySelector(
@@ -202,7 +264,7 @@ function refreshDOM(idWork) {
   }
 }
 
-// __ Suppression d'un travail dans modalGallery
+// __ Suppression d'un travail dans modalGallery (Vue 1)
 async function deleteWork() {
   if (event.target.tagName === "BUTTON" || event.target.tagName === "I") {
     const figureModal = event.target.closest("figure");
@@ -238,7 +300,7 @@ async function deleteWork() {
   }
 }
 
-// __ Clonage des travaux de gallery vers modalGallery
+// __ Clonage des travaux de gallery vers modalGallery (Vue 1)
 function cloningGallery() {
   if (modalGallery.childElementCount === 0) {
     for (const child of gallery.children) {
@@ -254,6 +316,12 @@ function cloningGallery() {
     }
   }
 }
+
+// __ Stoppe la propagation vers l'overlay (pattern Grafikart : clic sur fond ≠ clic sur contenu)
+const stopPropagation = function (event) {
+  event.stopPropagation();
+  // console.log("Enfant cliqué (stopPropagation)");
+};
 
 // __ Ouvre la modale (pattern Grafikart : style.display = null → laisse le CSS flex agir)
 const openModal = function (event) {
@@ -278,7 +346,7 @@ const openModal = function (event) {
   window.addEventListener("keydown", closeModalOnEscape);
 };
 
-// __ Ferme la modale
+// __ Ferme la modale (écoute de l'évènement activé dans openModal)
 const closeModal = function (event) {
   if (event) event.preventDefault();
   // console.log("Parent cliqué");
@@ -308,27 +376,139 @@ const closeModalOnEscape = function (event) {
   if (event.key === "Escape" || event.key === "Esc") closeModal(event);
 };
 
-// __ Stoppe la propagation vers l'overlay (pattern Grafikart : clic sur fond ≠ clic sur contenu)
-const stopPropagation = function (event) {
-  event.stopPropagation();
-  // console.log("Enfant cliqué (stopPropagation)");
-};
+// __ Vérification de la validité du formulaire (active/désactive bouton Valider Vue 2)
+function checkFormValidity() {
+  const hasImage = photoInput.files.length > 0;
+  const hasTitle = photoTitle.value.trim() !== "";
+  const hasCategory = photoCategory.value !== "";
 
-// __ Navigation interne : Vue 1 (galerie)
-const showModalGallery = function () {
-  document.querySelector("#modal-gallery").style.display = null;
-  document.querySelector("#modal-form").style.display = "none";
-};
+  if (hasImage && hasTitle && hasCategory) {
+    formSubmit.classList.add("data-valid");
+  } else {
+    formSubmit.classList.remove("data-valid");
+  }
+}
 
-// __ Navigation interne : Vue 2 (formulaire)
-const showModalForm = function () {
-  document.querySelector("#modal-gallery").style.display = "none";
-  document.querySelector("#modal-form").style.display = null;
-};
+// __ Vérification du format et de la taille du fichier uploader (previewImage Vue 2)
+function isFileValid(file) {
+  const maxSize = 4 * 1024 * 1024;
+  const validTypes = ["image/jpeg", "image/png"]; // type : tableau
 
-// Main
+  if (!validTypes.includes(file.type))
+    return {
+      isValid: false,
+      error: "** Ajout photo **\nSeuls les formats JPG et PNG sont acceptés.",
+    };
+  if (file.size > maxSize)
+    return {
+      isValid: false,
+      error:
+        "** Ajout photo **\nVeuillez sélectionner une image inférieure à 4Mo.",
+    };
 
-// __ Initialisation : async function init() inutile ici  les deux fonctions de chargement sont indépendantes l'une de l'autre
+  return { isValid: true };
+}
+
+// __ Restaure l'état visuel initial de upload-zone (preview off, instructions on - Vue 2).
+function resetUploadZone() {
+  photoInput.value = ""; // vide la sélection du fichier
+
+  // Cherche l'image de preview pour la supprimer
+  const img = uploadZone.querySelector("img");
+  if (img) {
+    img.remove();
+  }
+
+  // Affichage des éléments d'origine
+  // convertit la HTMLCollection en vrai Array; .children contient l'icône, le label et le <p>
+  Array.from(uploadZone.children).forEach((child) => {
+    // photoInput doit rester invisible pour ne pas afficher le bouton par défaut du navigateur
+    if (child !== photoInput) {
+      child.style.display = ""; // Le navigateur reprend le CSS d'origine
+    }
+  });
+}
+
+// __ Prévisualisation de l'image sélectionnée dans la zone d'upload (Vue 2)
+function previewImage() {
+  const file = photoInput.files[0];
+  if (!file) return;
+
+  const checkFile = isFileValid(file);
+
+  if (!checkFile.isValid) {
+    alert(checkFile.error);
+    resetUploadZone();
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    // Masquage CSS des enfants existants (i, label, p) de la zone et afficher l'image à la place
+    Array.from(uploadZone.children).forEach((child) => {
+      if (child !== photoInput) {
+        child.style.display = "none";
+      }
+    });
+
+    // 2. On ajoute l'image de preview sans supprimer le reste
+    let img = uploadZone.querySelector("img");
+    if (!img) {
+      img = document.createElement("img");
+      uploadZone.appendChild(img);
+    }
+    img.src = e.target.result;
+    img.style.display = "block"; // On s'assure que l'image est visible
+    img.style.maxHeight = "169px"; // Garde tes proportions
+  };
+  reader.readAsDataURL(file);
+
+  checkFormValidity(); // mise à jour couleur bouton
+}
+
+// __ Nettoie entièrement le formulaire de la modale (Vue 2)
+function clearModalForm() {
+  modalForm.reset(); // reset natif
+  resetUploadZone(); // reset visuel
+  checkFormValidity(); // bouton redevient gris
+}
+
+// __ Envoi du formulaire d'ajout via POST /works (multipart/form-data)
+async function submitForm() {
+  event.preventDefault();
+
+  // Récupération des valeurs
+  const file = photoInput.files[0];
+  const title = photoTitle.value.trim(); // supprime les espaces inutiles au début et à la fin d’une chaîne de caractères
+  const categoryId = photoCategory.value;
+
+  // Validation côté client
+  if (!file || !title || !categoryId) {
+    alert(
+      "** Ajout photo **\nVeuillez remplir tous les champs avant de valider !",
+    );
+    return;
+  }
+
+  // Construction du FormData
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("title", title);
+  formData.append("category", parseInt(categoryId)); // l'API attend un integer
+
+  const { available: recordAdded, data: newWork } = await addRecord(formData);
+  if (recordAdded) {
+    alert(
+      "** Ajout photo **\nL'enregistrement a été ajouté avec succès dans la base de données.",
+    );
+    clearModalForm();
+    showModalGallery();
+  }
+}
+
+// Main ****************************************************************************************
+
+// __ Initialisation : async function init() inutile ici ces deux fonctions sont indépendantes l'une de l'autre
 enableEditMode();
 loadData();
 
@@ -343,3 +523,9 @@ btnEdit.addEventListener("click", openModal);
 
 btnModalAdd.addEventListener("click", showModalForm);
 btnModalBack.addEventListener("click", showModalGallery);
+
+// __ Modale : Formulaire d'ajout
+photoInput.addEventListener("change", previewImage);
+photoTitle.addEventListener("input", checkFormValidity);
+photoCategory.addEventListener("change", checkFormValidity);
+modalForm.addEventListener("submit", submitForm);
