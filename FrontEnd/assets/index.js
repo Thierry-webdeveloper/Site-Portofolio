@@ -101,26 +101,32 @@ async function loadFilters() {
   return false;
 }
 
+// __ Fonction mutualisée - création d'un élément enfant pour "loadWorks" et de "addWorkToDOM"
+function createGalleryChild(work) {
+  const figure = document.createElement("figure");
+  const image = document.createElement("img");
+  const figcaption = document.createElement("figcaption");
+
+  image.src = work.imageUrl;
+  image.alt = work.title;
+  figcaption.textContent = work.title;
+
+  figure.appendChild(image);
+  figure.appendChild(figcaption);
+  figure.dataset.work = work.id;
+  figure.dataset.category = work.categoryId;
+
+  // gallery.appendChild(figure);
+  return figure;
+}
+
 // __ Chargement des travaux
 async function loadWorks() {
   const { available, data: works } = await apiCall("works", "GET");
 
   if (available) {
     works.forEach((work) => {
-      const figure = document.createElement("figure");
-      const image = document.createElement("img");
-      const figcaption = document.createElement("figcaption");
-
-      image.src = work.imageUrl;
-      image.alt = work.title;
-      figcaption.textContent = work.title;
-
-      figure.appendChild(image);
-      figure.appendChild(figcaption);
-      figure.dataset.work = work.id;
-      figure.dataset.category = work.categoryId;
-
-      gallery.appendChild(figure);
+      gallery.appendChild(createGalleryChild(work));
     });
   }
 }
@@ -246,7 +252,6 @@ const showModalForm = function () {
   document.querySelector("#modal-form").style.display = null;
 
   loadFormCategories(); // chargement dynamique des catégories
-  //resetForm(); // formulaire toujours vierge à l'ouverture
 };
 
 // __ Actualisation du DOM des galeries après la suppression du travail
@@ -300,21 +305,33 @@ async function deleteWork() {
   }
 }
 
+// __ Fonction mutualisée - ajout d'un élément enfant pour "addWorkToDOM" et "cloningGallery"
+function addModalGalleryChild(figure) {
+  const clone = figure.cloneNode(true);
+  clone.querySelector("figcaption").remove();
+
+  const trashBtn = document.createElement("button");
+  trashBtn.classList.add("modal-delete-btn");
+  trashBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+  clone.appendChild(trashBtn);
+
+  modalGallery.appendChild(clone);
+}
+
 // __ Clonage des travaux de gallery vers modalGallery (Vue 1)
 function cloningGallery() {
   if (modalGallery.childElementCount === 0) {
-    for (const child of gallery.children) {
-      const clone = child.cloneNode(true);
-      clone.querySelector("figcaption").remove();
-
-      const trashBtn = document.createElement("button");
-      trashBtn.classList.add("modal-delete-btn");
-      trashBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
-
-      clone.appendChild(trashBtn);
-      modalGallery.appendChild(clone);
+    for (const figure of gallery.children) {
+      addModalGalleryChild(figure);
     }
   }
+}
+
+// __ Ajout synchronisé d'un élément enfant dans le DOM des sélecteurs de gallery et modalGallery
+function addWorkToDOM(work) {
+  const figure = createGalleryChild(work);
+  gallery.appendChild(figure);
+  addModalGalleryChild(figure);
 }
 
 // __ Stoppe la propagation vers l'overlay (pattern Grafikart : clic sur fond ≠ clic sur contenu)
@@ -498,9 +515,10 @@ async function submitForm() {
 
   const { available: recordAdded, data: newWork } = await addRecord(formData);
   if (recordAdded) {
-    alert(
-      "** Ajout photo **\nL'enregistrement a été ajouté avec succès dans la base de données.",
-    );
+    // alert(
+    //   "** Ajout photo **\nL'enregistrement a été ajouté avec succès dans la base de données.",
+    // );
+    addWorkToDOM(newWork);
     clearModalForm();
     showModalGallery();
   }
