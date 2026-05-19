@@ -424,11 +424,12 @@ body.login-page main {
   justify-content: center;
   cursor: pointer;
   padding: 0;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, scale 0.2s ease;
 }
 
 .modal-delete-btn:hover {
   background-color: red;
+  scale: 1.3;
 }
 
 .modal-delete-btn i {
@@ -568,7 +569,6 @@ body.login-page main {
   height: 36px;
   width: 237px;
   padding: 0 40px;
-  /* cursor: pointer; */
   align-self: center;
   margin-top: 20px;
 }

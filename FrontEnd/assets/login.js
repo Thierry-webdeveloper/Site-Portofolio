@@ -28,16 +28,8 @@ loginForm.addEventListener("submit", async (event) => {
   if (response.ok) {
     const data = await response.json();
     localStorage.setItem("token", data.token);
-    console.log("Token JWT :", data.token);
     window.location.href = "index.html";
   } else {
-    // Affichage du message d'erreur dans le DOM, création d'une balise <p id="login-error"> si elle n'existe pas
-    // let errorMsg = document.querySelector("#login-error");
-    // if (!errorMsg) {
-    //   errorMsg = document.createElement("p");
-    //   errorMsg.id = "login-error";
-    //   loginForm.appendChild(errorMsg);
-    // }
     errorMsg.textContent = "** Erreur dans l'identifiant ou le mot de passe **";
   }
 });

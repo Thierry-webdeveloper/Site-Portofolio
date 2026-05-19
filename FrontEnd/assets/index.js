@@ -34,8 +34,6 @@ let modal = null; // référence à la modale ouverte (pattern Grafikart)
  * @returns {Promise<{available: boolean, data: any, status?: number, error?: string}>}
  */
 async function apiCall(url, method, body = null, token = null) {
-  console.log(`apiCall : activé\nmethod : ${method}`);
-
   try {
     const headers = {};
     const options = { method, headers };
@@ -70,7 +68,6 @@ async function apiCall(url, method, body = null, token = null) {
       }
       return { available: true, data: data };
     } else {
-      console.log(`Erreur serveur : ${response.status}`);
       alert(
         `Erreur serveur : ${response.status}\nLa requête n'a pas pu aboutir.`,
       );
@@ -78,7 +75,6 @@ async function apiCall(url, method, body = null, token = null) {
     }
   } catch (error) {
     // Capture les erreurs réseau, DNS et les erreurs de parsing JSON
-    console.log(`Erreur réseau : ${error.message}`);
     alert(
       `Impossible de contacter le serveur.\nVérifiez votre connexion (${error.message})`,
     );
@@ -116,7 +112,6 @@ function createGalleryChild(work) {
   figure.dataset.work = work.id;
   figure.dataset.category = work.categoryId;
 
-  // gallery.appendChild(figure);
   return figure;
 }
 
@@ -137,7 +132,7 @@ async function deleteRecord(id) {
     const { available } = await apiCall(`works/${id}`, "DELETE", null, token);
     return available;
   }
-  console.warn("Échec fonction deleteRecord : id invalide ou jeton manquant.");
+  alert("Suppression impossible : identifiant invalide ou session expirée.");
   return false;
 }
 
@@ -147,9 +142,7 @@ async function addRecord(formData) {
     const { available, data } = await apiCall("works", "POST", formData, token);
     return { available, data };
   }
-  console.warn(
-    "Échec fonction addRecord : Données invalides ou jeton manquant.",
-  );
+  alert("Ajout impossible : données invalides ou session expirée.");
   return { available: false, data: null };
 }
 // __ Gestion de la page principale __________________________________________________________
@@ -162,7 +155,6 @@ async function loadData() {
 
 // __ Gestion du mode d'édition de la page index
 function enableEditMode() {
-  // const token = localStorage.getItem("token");
   if (token) {
     document.querySelector("#edit-banner").classList.remove("is-hidden");
     document.querySelector("#nav-login").classList.add("is-hidden");
@@ -176,7 +168,6 @@ function enableEditMode() {
 function disableEditMode() {
   event.preventDefault();
   localStorage.removeItem("token");
-  // window.location.href = "login.html";
   window.location.reload(); // recharge la page index.html
 }
 
@@ -202,7 +193,6 @@ function selectFilter() {
       btnActive.classList.remove("active");
       btnSelected.classList.add("active");
       const categorySelected = btnSelected.getAttribute("data-category");
-      // console.log("category : " + categorySelected);
       allFigure.forEach((figure) => {
         if (
           figure.dataset.category == categorySelected ||
@@ -275,32 +265,17 @@ async function deleteWork() {
     const figureModal = event.target.closest("figure");
     const workId = figureModal.getAttribute("data-work");
 
-    console.log("workId : " + workId);
-
     const confirmation = confirm(
       "Êtes-vous sûr de vouloir supprimer cette photo de la galerie ?",
     );
 
     if (confirmation) {
-      console.log("Demande de suppression confirmée");
-
       // __ Suppression de l'enregistrement en base de données
       const recordDeleted = await deleteRecord(workId);
       if (recordDeleted) {
-        console.log(
-          `L'enregistrement ${workId} a été supprimé avec succès de la base de données.`,
-        );
-
         // __ Mise à jour des affichages du DOM
-        const domUpdated = refreshDOM(workId);
-        if (domUpdated) {
-          console.log("Actualisation du DOM réalisée");
-        } else {
-          console.log("L'actualisation de DOM a échoué");
-        }
+        refreshDOM(workId);
       }
-    } else {
-      console.log("Suppression abandonnée");
     }
   }
 }
@@ -337,14 +312,13 @@ function addWorkToDOM(work) {
 // __ Stoppe la propagation vers l'overlay (pattern Grafikart : clic sur fond ≠ clic sur contenu)
 const stopPropagation = function (event) {
   event.stopPropagation();
-  // console.log("Enfant cliqué (stopPropagation)");
 };
 
 // __ Ouvre la modale (pattern Grafikart : style.display = null → laisse le CSS flex agir)
 const openModal = function (event) {
   event.preventDefault();
   modal = document.querySelector("#modal-overlay");
-  modal.style.display = null; // retire le display:none inline
+  modal.style.display = null; // retire le display:none inline => Le navigateur reprend le CSS (.modal)
   modal.setAttribute("aria-hidden", "false");
   modal.setAttribute("aria-modal", "true");
 
@@ -366,7 +340,6 @@ const openModal = function (event) {
 // __ Ferme la modale (écoute de l'évènement activé dans openModal)
 const closeModal = function (event) {
   if (event) event.preventDefault();
-  // console.log("Parent cliqué");
 
   btnEdit.focus(); // redonner le focus avant removeAttribute("aria-modal") - alerte W3C
 
@@ -515,9 +488,6 @@ async function submitForm() {
 
   const { available: recordAdded, data: newWork } = await addRecord(formData);
   if (recordAdded) {
-    // alert(
-    //   "** Ajout photo **\nL'enregistrement a été ajouté avec succès dans la base de données.",
-    // );
     addWorkToDOM(newWork);
     clearModalForm();
     showModalGallery();
